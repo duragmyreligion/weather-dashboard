@@ -64,13 +64,15 @@ function getResult() {
             return response.json();
         })
         .then(data => {
+            console.log('Geo data:', data); // Log the geo data for inspection
+
             // Check if the response contains the expected data structure
             if (Array.isArray(data) && data.length > 0) {
                 const geoLon = data[0].lon;
                 const geoLat = data[0].lat;
 
                 // Construct the URL for the Weather API
-                const weatherUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${geoLat}&lon=${geoLon}&exclude=minutely,hourly,alerts&units=imperial&appid=${apiKey}`;
+                const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${geoLat}&lon=${geoLon}&appid=${apiKey}`;
 
                 // Fetch weather data
                 fetch(weatherUrl)
@@ -81,13 +83,16 @@ function getResult() {
                         return response.json();
                     })
                     .then(data => {
+                        console.log('Weather data:', data); // Log the weather data for inspection
+
                         // Display current weather data
                         displayCurrentWeather(data, inputCity);
-
+                        console.log(data)
                         // Display 5-day forecast
-                        for (let i = 1; i < 6; i++) {
-                            displayDailyForecast(data.daily[i], i);
-                        }
+                        // for (let i = 1; i < 6; i++) {
+                        //     // Adjust this based on the actual structure of the data
+                        //     // displayDailyForecast(data.list[i * 8], i);
+                        // }
                     })
                     .catch(weatherError => {
                         console.error("Error fetching weather data:", weatherError);
@@ -101,28 +106,26 @@ function getResult() {
         });
 }
 
+function kelvinToFahrenheit(kelvin) {
+    return ((kelvin - 273.15) * 9/5 + 32).toFixed(2);
+}
+
 // Display current weather data
 function displayCurrentWeather(data, inputCity) {
     // Check if 'data' contains the necessary properties
-    if (data && data.current && data.current.dt) {
-        const current = data.current;
+    if (data && (data.main || data.temp) && data.weather && (data.wind || data.wind_speed) && data.dt) {
         const cityName = inputCity;
-        const date = new Date(current.dt * 1000);
+        const date = new Date(data.dt * 1000);
 
         const cityNameElement = $("<h>").addClass("h3").text(cityName);
         const dateTimeElement = $("<div>").text(`(${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()})`);
-        const iconElement = $("<img>").addClass("icon").attr('src', `https://openweathermap.org/img/wn/${current.weather[0].icon}.png`);
-        const tempElement = $("<div>").text(`Temperature: ${current.temp} F`);
-        const humidityElement = $("<div>").text(`Humidity: ${current.humidity} %`);
-        const windElement = $("<div>").text(`Wind Speed: ${current.wind_speed} MPH`);
-        const uvIndexElement = $("<div>").addClass("d-flex").text("UV Index: ");
-        const uvi = current.uvi;
-
-        uvIndexElement.append(uviColorIndicator(uvi));
-        uvIndexElement.append(uvi);
+        const iconElement = $("<img>").addClass("icon").attr('src', `https://openweathermap.org/img/wn/${data.weather[0].icon}.png`);
+        const tempElement = $("<div>").text(`Temperature: ${kelvinToFahrenheit(data.main.temp)} F`);
+        const humidityElement = $("<div>").text(`Humidity: ${data.main.humidity} %`);
+        const windElement = $("<div>").text(`Wind Speed: ${data.wind ? data.wind.speed : data.wind_speed} MPH`);
 
         cityInfoContainer.addClass("list-group");
-        cityInfoContainer.append(cityNameElement, dateTimeElement, iconElement, tempElement, humidityElement, windElement, uvIndexElement);
+        cityInfoContainer.append(cityNameElement, dateTimeElement, iconElement, tempElement, humidityElement, windElement);
     } else {
         console.error("Invalid or missing data for current weather");
     }

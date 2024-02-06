@@ -24,3 +24,8 @@ header {
 .btn {
     width: 18.75rem;
 }
+
+.icon {
+    height: auto;
+    width: 50px;
+}

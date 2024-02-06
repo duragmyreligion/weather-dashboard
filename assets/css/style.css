@@ -1,0 +1,26 @@
+.outside {
+    padding: 2rem;
+    width: 30%;
+    background-color: #728FCE;
+    color: white;
+}
+
+.current-weather {
+    margin-left: 41rem;
+    margin-top: -26.4rem;
+}
+
+.five-day {
+    margin-left: 41rem;
+    margin-top: 11.8rem;
+}
+
+header {
+    background-color: #728FCE;
+    width: 100%;
+    padding: 1rem;
+}
+
+.btn {
+    width: 18.75rem;
+}
